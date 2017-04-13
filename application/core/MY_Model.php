@@ -20,9 +20,9 @@ class MY_Model extends CI_Model {
      */
     function create($data = array()) {
         if ($this->db->insert($this->table, $data)) {
-            return TRUE;
+            return $this->db->insert_id();
         } else {
-            return FALSE;
+            return 0;
         }
     }
 
@@ -141,7 +141,21 @@ class MY_Model extends CI_Model {
      * Lay tong so
      */
     function get_total($input = array()) {
-        $this->get_list_set_input($input);
+        if ((isset($input['where'])) && $input['where']) {
+            $this->db->where($input['where']);
+        }
+        if ((isset($input['or_where'])) && $input['or_where']) {
+            $this->db->or_where($input['or_where']);
+        }
+        //tim kiem like
+        // $input['like'] = array('name' => 'abc');
+        if ((isset($input['like'])) && $input['like']) {
+            $this->db->like($input['like'][0], $input['like'][1]);
+        }
+
+        if ((isset($input['join'])) && $input['join']) {
+            $this->db->join($input['join'][0], $input['join'][1], $input['join'][2]);
+        }
 
         $query = $this->db->get($this->table);
 
@@ -195,22 +209,25 @@ class MY_Model extends CI_Model {
      */
     protected function get_list_set_input($input = array()) {
 
-        if((isset($input['select'])) && $input['select']){
+        if ((isset($input['select'])) && $input['select']) {
             $this->db->select($input['select']);
         }
         // Thêm điều kiện cho câu truy vấn truyền qua biến $input['where'] 
         //(vi du: $input['where'] = array('email' => 'hocphp@gmail.com'))
+
         if ((isset($input['where'])) && $input['where']) {
             $this->db->where($input['where']);
         }
-
+        if ((isset($input['or_where'])) && $input['or_where']) {
+            $this->db->or_where($input['or_where']);
+        }
         //tim kiem like
         // $input['like'] = array('name' => 'abc');
         if ((isset($input['like'])) && $input['like']) {
             $this->db->like($input['like'][0], $input['like'][1]);
         }
 
-        if((isset($input['join'])) && $input['join']){
+        if ((isset($input['join'])) && $input['join']) {
             $this->db->join($input['join'][0], $input['join'][1], $input['join'][2]);
         }
         // Thêm sắp xếp dữ liệu thông qua biến $input['order'] 
